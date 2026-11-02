@@ -1,14 +1,23 @@
-# Builds dist\DropMyShelf-<version>.msix for the Microsoft Store.
+# Builds dist\DropMyShelf-<version>.msix to upload to the Microsoft Store.
 # Needs the .NET 8 SDK and the Windows SDK (winget install Microsoft.WindowsSDK.10.0.26100).
 #
-# The identity values come from Partner Center > your app > Product management > Product identity.
-# Without them the package is only good for local testing (it can't be uploaded).
-param(
-    [string]$IdentityName = 'DropMyShelf.LocalTest',
-    [string]$Publisher = 'CN=DropMyShelf Local Test',
-    [string]$PublisherDisplayName = 'JohanRouyer'
-)
+# The identity is the one Partner Center assigned (DropMyShelf > Product management > Product identity).
+# -LocalTest builds dist\DropMyShelf-<version>-localtest.msix with a separate identity instead, for
+# packaging\install-local-test.ps1 to sign and install on this PC.
+param([switch]$LocalTest)
 $ErrorActionPreference = 'Stop'
+
+if ($LocalTest) {
+    $IdentityName = 'DropMyShelf.LocalTest'
+    $Publisher = 'CN=DropMyShelf Local Test'   # the subject of install-local-test.ps1's certificate
+    $PublisherDisplayName = 'DropMyShelf local test'
+    $suffix = '-localtest'
+} else {
+    $IdentityName = 'M1r4g3.DropMyShelf'
+    $Publisher = 'CN=C1FC7468-8DBE-4F85-9C97-981B77A14779'
+    $PublisherDisplayName = 'M1r4g3'
+    $suffix = ''
+}
 
 $root = Split-Path $PSScriptRoot
 $version = ([xml](Get-Content "$root\DropMyShelf.csproj")).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
@@ -50,7 +59,7 @@ $config.Save($priConfig)
 if ($LASTEXITCODE) { throw "makepri failed" }
 
 New-Item -ItemType Directory -Force "$root\dist" | Out-Null
-$package = Join-Path $root "dist\DropMyShelf-$version.msix"
+$package = Join-Path $root "dist\DropMyShelf-$version$suffix.msix"
 & $makeappx pack /o /d $layout /p $package | Out-Null
 if ($LASTEXITCODE) { throw "makeappx failed" }
 

@@ -1,5 +1,6 @@
 #Requires -RunAsAdministrator
-# Installs dist\DropMyShelf-<version>.msix on this PC to try the Store build before submitting it.
+# Installs dist\DropMyShelf-<version>-localtest.msix on this PC to try the Store build before
+# submitting it. Build that package first with: packaging\build-msix.ps1 -LocalTest
 #
 # Windows only installs signed packages, so this signs the test package with a self-signed
 # certificate and trusts that certificate on this PC (Local Machine > Trusted People).
@@ -12,7 +13,7 @@
 param([switch]$Uninstall)
 $ErrorActionPreference = 'Stop'
 
-$subject = 'CN=DropMyShelf Local Test'   # must match -Publisher in build-msix.ps1 (its default)
+$subject = 'CN=DropMyShelf Local Test'   # must match the publisher build-msix.ps1 -LocalTest uses
 $root = Split-Path $PSScriptRoot
 
 if ($Uninstall) {
@@ -24,8 +25,8 @@ if ($Uninstall) {
 }
 
 $version = ([xml](Get-Content "$root\DropMyShelf.csproj")).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
-$package = Join-Path $root "dist\DropMyShelf-$version.msix"
-if (-not (Test-Path $package)) { throw "Build it first: packaging\build-msix.ps1" }
+$package = Join-Path $root "dist\DropMyShelf-$version-localtest.msix"
+if (-not (Test-Path $package)) { throw "Build it first: packaging\build-msix.ps1 -LocalTest" }
 
 $cert = Get-ChildItem Cert:\CurrentUser\My | Where-Object Subject -eq $subject | Select-Object -First 1
 if (-not $cert) {
