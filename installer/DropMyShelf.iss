@@ -72,7 +72,7 @@ Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExe}"; Tasks: desktopico
 [Registry]
 ; Same value the app's own "Start with Windows" menu item toggles.
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "DropMyShelf"; ValueData: """{app}\{#AppExe}"" --startup"; Tasks: startup
-; Its switch in Settings > Apps > Startup, set to on: Windows skips Run entries that have none.
+; Its switch in Settings > Apps > Startup, set to on (as Task Manager does).
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"; ValueType: binary; ValueName: "DropMyShelf"; ValueData: "02 00 00 00 00 00 00 00 00 00 00 00"; Tasks: startup
 
 [Run]

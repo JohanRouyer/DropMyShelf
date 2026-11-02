@@ -464,8 +464,8 @@ public partial class App : Application
     internal static void OpenStartupSettings() => OpenUrl("ms-settings:startupapps");
 
     // Windows keeps its own on/off switch for each Run entry (Task Manager > Startup apps). The first
-    // byte is even when enabled and odd when the user disabled it; recent Windows builds skip a Run
-    // entry that has no switch at all, so DropMyShelf writes "enabled" along with the Run entry.
+    // byte is even when enabled and odd when the user disabled it. DropMyShelf sets it to enabled
+    // along with the Run entry, as Task Manager does, and reads it to show the real state.
     private const string StartupApprovedPath = @"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run";
     private static readonly byte[] StartupApprovedEnabled = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
@@ -495,8 +495,8 @@ public partial class App : Application
     }
 
     /// <summary>
-    /// Fixes start-with-Windows entries written by earlier versions, which had no Startup apps switch
-    /// and were skipped at sign-in. A switch the user turned off is left alone.
+    /// Gives a start-with-Windows entry written by an earlier version its Startup apps switch,
+    /// set to enabled. A switch the user turned off is left alone.
     /// </summary>
     private static void RepairStartupApproval()
     {
