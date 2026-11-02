@@ -14,17 +14,17 @@ using Microsoft.Win32;
 using Drawing = System.Drawing;
 using Forms = System.Windows.Forms;
 
-namespace DropMe;
+namespace DropMyShelf;
 
 public partial class App : Application
 {
     private const string RunKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
-    private const string RunValueName = "DropMe";
+    private const string RunValueName = "DropMyShelf";
     // Passed by the Windows startup entry, so the welcome balloon only shows on a manual launch.
     private const string StartupArgument = "--startup";
-    // Passed by the installer when it restarts DropMe after an in-app update.
+    // Passed by the installer when it restarts DropMyShelf after an in-app update.
     private const string UpdatedArgument = "--updated";
-    // "DropMe.exe --update" checks for a newer release and installs it right away.
+    // "DropMyShelf.exe --update" checks for a newer release and installs it right away.
     private const string UpdateArgument = "--update";
 
     private Mutex? _singleInstance;
@@ -51,7 +51,7 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
-        _singleInstance = new Mutex(true, "DropMe.SingleInstance", out bool created);
+        _singleInstance = new Mutex(true, "DropMyShelf.SingleInstance", out bool created);
         if (!created)
         {
             Shutdown();
@@ -65,6 +65,7 @@ public partial class App : Application
             args.Handled = true;
         };
 
+        MoveDataFromOldName();
         Settings = Settings.Load();
         History = ShelfHistory.Load(Settings.HistorySize);
         PrepareSpareShelf();
@@ -79,14 +80,14 @@ public partial class App : Application
         if (e.Args.Contains(UpdatedArgument))
         {
             UpdateChecker.DeleteDownloadedInstallers();
-            Notify($"DropMe updated to {UpdateChecker.CurrentVersion}", "Your shelves and settings were kept.");
+            Notify($"DropMyShelf updated to {UpdateChecker.CurrentVersion}", "Your shelves and settings were kept.");
         }
         else if (!Settings.WelcomeShown && !e.Args.Contains(StartupArgument))
         {
             // Once only: the Store build can't pass --startup, so a start with Windows looks like any other.
             Settings.WelcomeShown = true;
             Settings.Save();
-            Notify("DropMe is running", "Drag a file and shake the mouse to bring up a shelf.");
+            Notify("DropMyShelf is running", "Drag a file and shake the mouse to bring up a shelf.");
         }
 
         // The Store updates its apps itself and doesn't allow them to install their own updates.
@@ -157,7 +158,7 @@ public partial class App : Application
         if (AvailableUpdate is not { } update)
         {
             if (manual)
-                Notify("DropMe is up to date", $"You have the latest version ({UpdateChecker.CurrentVersion}).");
+                Notify("DropMyShelf is up to date", $"You have the latest version ({UpdateChecker.CurrentVersion}).");
             return;
         }
 
@@ -167,18 +168,18 @@ public partial class App : Application
         {
             Settings.NotifiedVersion = version;
             Settings.Save();
-            Notify($"DropMe {version} is available", "Click here to update. Your shelves and settings are kept.",
+            Notify($"DropMyShelf {version} is available", "Click here to update. Your shelves and settings are kept.",
                 onClick: InstallUpdate);
         }
     }
 
-    /// <summary>Downloads the new installer, runs it silently and exits; the installer restarts DropMe.</summary>
+    /// <summary>Downloads the new installer, runs it silently and exits; the installer restarts DropMyShelf.</summary>
     internal async void InstallUpdate()
     {
         if (AvailableUpdate is not { } update || _installingUpdate)
             return;
         _installingUpdate = true;
-        Notify("Updating DropMe", $"Downloading version {update.Version}…");
+        Notify("Updating DropMyShelf", $"Downloading version {update.Version}…");
         try
         {
             string installer = await UpdateChecker.DownloadAsync(update);
@@ -196,7 +197,7 @@ public partial class App : Application
             _installingUpdate = false;
             UpdateChecker.DeleteDownloadedInstallers();
             Notify("Windows blocked the update",
-                $"Smart App Control or your security settings stopped the installer. Click here to get DropMe {update.Version} from GitHub.",
+                $"Smart App Control or your security settings stopped the installer. Click here to get DropMyShelf {update.Version} from GitHub.",
                 Forms.ToolTipIcon.Warning, () => OpenUrl(update.PageUrl));
         }
         catch (Exception ex)
@@ -214,11 +215,32 @@ public partial class App : Application
 
     private static void OpenUrl(string url) => Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
 
+    /// <summary>
+    /// The app was called DropMe up to 1.3.2: on the first run under the new name, bring its history
+    /// and settings along. Files saved in %TEMP%\DropMe stay put, since the history points at them.
+    /// </summary>
+    private static void MoveDataFromOldName()
+    {
+        string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        string oldFolder = Path.Combine(appData, "DropMe");
+        string newFolder = Path.Combine(appData, "DropMyShelf");
+        if (!Directory.Exists(oldFolder) || Directory.Exists(newFolder))
+            return;
+        try
+        {
+            Directory.Move(oldFolder, newFolder);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // Old files are locked or unreadable: start fresh rather than fail.
+        }
+    }
+
     private static void LogError(Exception ex)
     {
         try
         {
-            string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DropMe");
+            string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DropMyShelf");
             Directory.CreateDirectory(folder);
             File.AppendAllText(Path.Combine(folder, "errors.log"), $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {ex}{Environment.NewLine}{Environment.NewLine}");
         }
@@ -291,7 +313,7 @@ public partial class App : Application
         History.Remove(entry);
         if (!entry.Items.Any(p => File.Exists(p) || Directory.Exists(p)))
         {
-            Notify("DropMe", "These files no longer exist.", Forms.ToolTipIcon.Warning);
+            Notify("DropMyShelf", "These files no longer exist.", Forms.ToolTipIcon.Warning);
             return;
         }
 
@@ -325,7 +347,7 @@ public partial class App : Application
         _tray = new Forms.NotifyIcon
         {
             Icon = LoadTrayIcon(),
-            Text = "DropMe — shake the mouse while dragging",
+            Text = "DropMyShelf — shake the mouse while dragging",
             ContextMenuStrip = menu,
             Visible = true,
         };
@@ -369,7 +391,7 @@ public partial class App : Application
             menu.Items.Add(install);
             menu.Items.Add(new Forms.ToolStripSeparator());
         }
-        menu.Items.Add("Open DropMe", null, (_, _) => ToggleLibrary());
+        menu.Items.Add("Open DropMyShelf", null, (_, _) => ToggleLibrary());
         menu.Items.Add("New shelf", null, (_, _) => OpenNewShelf());
         if (_shelves.Count > 0)
         {
@@ -409,25 +431,25 @@ public partial class App : Application
             menu.Items.Add(new Forms.ToolStripSeparator());
             menu.Items.Add("Check for updates", null, async (_, _) => await CheckForUpdatesAsync(manual: true));
         }
-        menu.Items.Add("About DropMe", null, (_, _) => ShowAbout());
+        menu.Items.Add("About DropMyShelf", null, (_, _) => ShowAbout());
         menu.Items.Add("Quit", null, (_, _) => Shutdown());
     }
 
     private static void ShowAbout()
     {
         var answer = MessageBox.Show(
-            $"DropMe {UpdateChecker.CurrentVersion}\nCopyright (c) 2026 JohanRouyer\n\n"
+            $"DropMyShelf {UpdateChecker.CurrentVersion}\nCopyright (c) 2026 JohanRouyer\n\n"
             + "Licensed under the PolyForm Noncommercial License 1.0.0: free for noncommercial use, "
             + "and this copyright notice must be kept when sharing it.\n\n"
             + "Open the project page on GitHub?",
-            "About DropMe", MessageBoxButton.YesNo, MessageBoxImage.Information);
+            "About DropMyShelf", MessageBoxButton.YesNo, MessageBoxImage.Information);
         if (answer == MessageBoxResult.Yes)
             OpenUrl(UpdateChecker.RepositoryUrl);
     }
 
     private static Drawing.Icon LoadTrayIcon()
     {
-        using var stream = GetResourceStream(new Uri("pack://application:,,,/Assets/DropMe.ico")).Stream;
+        using var stream = GetResourceStream(new Uri("pack://application:,,,/Assets/DropMyShelf.ico")).Stream;
         return new Drawing.Icon(stream, Forms.SystemInformation.SmallIconSize);
     }
 

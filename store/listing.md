@@ -1,10 +1,10 @@
 # Microsoft Store listing (English)
 
-Copy these into Partner Center > DropMe > Store listings > English. Character limits are noted.
+Copy these into Partner Center > DropMyShelf > Store listings > English. Character limits are noted.
 
 ## Product name
 
-DropMe
+DropMyShelf
 
 ## Short description (Windows 10/11, up to 1,000 characters; shown at the top of the listing)
 
@@ -14,7 +14,7 @@ shelf pops up to hold it while you go find where it belongs.
 ## Description (up to 10,000 characters)
 
 Moving files on Windows often means juggling two Explorer windows, or dragging something halfway
-across the screen only to realize the destination isn't open yet. DropMe gives you a place to put
+across the screen only to realize the destination isn't open yet. DropMyShelf gives you a place to put
 things down for a moment.
 
 1. Start dragging a file, a folder, an image from a web page, some text or a link.
@@ -22,12 +22,12 @@ things down for a moment.
 3. Drop it on the shelf, then take your time: open the right folder, switch apps, collect more files.
 4. Drag the shelf to where everything should go.
 
-No window to keep open, no hotkey to remember. DropMe stays in the notification area until you shake.
+No window to keep open, no hotkey to remember. DropMyShelf stays in the notification area until you shake.
 
 Shelves only keep references to your files: nothing is copied or deleted until you drag it
 somewhere yourself. Recently closed shelves stay one click away from the tray icon.
 
-DropMe runs entirely on your PC, with no account, ads or tracking.
+DropMyShelf runs entirely on your PC, with no account, ads or tracking.
 
 Known limitation: the shake is detected whenever the left mouse button is held, so it can
 occasionally trigger while selecting text or moving a window. Closing the shelf is one click, and an
@@ -55,15 +55,15 @@ Productivity
 
 ## Privacy policy URL
 
-https://github.com/JohanRouyer/DropMe/blob/main/PRIVACY.md
+https://github.com/JohanRouyer/DropMyShelf/blob/main/PRIVACY.md
 
 ## Website
 
-https://github.com/JohanRouyer/DropMe
+https://github.com/JohanRouyer/DropMyShelf
 
 ## Support contact
 
-https://github.com/JohanRouyer/DropMe/issues
+https://github.com/JohanRouyer/DropMyShelf/issues
 
 ## Copyright and trademark info
 
@@ -76,10 +76,10 @@ store/screenshots/1-shelves.png, 2-library.png, 3-drag-shake-drop.png
 
 ## Notes for certification (Submission options > Notes for certification)
 
-DropMe is a WPF desktop app. It uses runFullTrust because it installs a low-level mouse hook
+DropMyShelf is a WPF desktop app. It uses runFullTrust because it installs a low-level mouse hook
 (SetWindowsHookEx, WH_MOUSE_LL) to detect a left-right shake of the mouse while the left button is
 held during a drag, and then shows a small topmost window that accepts dropped files. To test: drag
 any file from File Explorer and shake the mouse left and right; drop the file on the shelf that
-appears; drag the shelf onto a folder. Left-click the tray icon to open the DropMe window.
+appears; drag the shelf onto a folder. Left-click the tray icon to open the DropMyShelf window.
 The app starts with Windows through a package startup task the user can turn off in
 Settings > Apps > Startup. The Store version does not update itself.

@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace DropMe;
+namespace DropMyShelf;
 
 /// <summary>Gets the same thumbnail/icon Explorer shows for a file or folder.</summary>
 internal static class ShellThumbnail

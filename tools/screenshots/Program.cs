@@ -8,14 +8,14 @@ using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
-namespace DropMe.Screenshots;
+namespace DropMyShelf.Screenshots;
 
 /// <summary>
-/// Renders DropMe's real windows, filled with sample files, into PNGs: screenshots for the README
+/// Renders DropMyShelf's real windows, filled with sample files, into PNGs: screenshots for the README
 /// and sprites that tools/make_demo_gif.py animates. Windows stay off-screen, the user's history and
-/// settings are not touched, and DropMe's tray icon and mouse hook are never started.
+/// settings are not touched, and DropMyShelf's tray icon and mouse hook are never started.
 /// </summary>
-/// <remarks>Usage: DropMe.Screenshots &lt;docs folder&gt; &lt;sprites folder&gt;</remarks>
+/// <remarks>Usage: DropMyShelf.Screenshots &lt;docs folder&gt; &lt;sprites folder&gt;</remarks>
 internal static class Program
 {
     [STAThread]
@@ -30,7 +30,7 @@ internal static class Program
     }
 }
 
-/// <summary>DropMe's App with its startup (single instance, tray icon, mouse hook) replaced by the captures.</summary>
+/// <summary>DropMyShelf's App with its startup (single instance, tray icon, mouse hook) replaced by the captures.</summary>
 internal sealed class CaptureApp : App
 {
     // Render at twice the size so images stay sharp on high-DPI screens and when scaled down.
@@ -61,7 +61,7 @@ internal sealed class CaptureApp : App
 
     private void Capture()
     {
-        var files = SampleFiles.Create(Path.Combine(Path.GetTempPath(), "DropMe screenshots"));
+        var files = SampleFiles.Create(Path.Combine(Path.GetTempPath(), "DropMyShelf screenshots"));
 
         // Sprites for the animation: an empty shelf, the same shelf under a drag, then holding one photo.
         var shelf = new ShelfWindow();
@@ -88,7 +88,7 @@ internal sealed class CaptureApp : App
         Save(shelf, Path.Combine(_docs, "shelf-expanded.png"));
         shelf.Close();
 
-        // README: the DropMe window with a few recent shelves (added oldest first).
+        // README: the DropMyShelf window with a few recent shelves (added oldest first).
         var now = DateTime.Now;
         History.Add(new[] { files.PhotosFolder }, now.AddDays(-4));
         History.Add(new[] { files.CityLights, files.Lake }, now.AddDays(-3));

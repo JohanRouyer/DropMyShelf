@@ -1,4 +1,4 @@
-"""Generates the MSIX logo images in packaging/Assets from Assets/DropMe.ico. Needs Pillow.
+"""Generates the MSIX logo images in packaging/Assets from Assets/DropMyShelf.ico. Needs Pillow.
 
 Usage: python tools/make_store_assets.py
 """
@@ -12,7 +12,7 @@ OUT = ROOT / "packaging" / "Assets"
 
 
 def icon(size: int) -> Image.Image:
-    ico = Image.open(ROOT / "Assets" / "DropMe.ico")
+    ico = Image.open(ROOT / "Assets" / "DropMyShelf.ico")
     ico.size = max(ico.ico.sizes())  # the 256 px frame
     return ico.convert("RGBA").resize((size, size), Image.LANCZOS)
 

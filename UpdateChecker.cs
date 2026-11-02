@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace DropMe;
+namespace DropMyShelf;
 
 /// <summary>A newer release published on GitHub.</summary>
 internal sealed record UpdateInfo(Version Version, string InstallerUrl, string AssetName, string? Sha256, string PageUrl);
@@ -14,8 +14,8 @@ internal sealed record UpdateInfo(Version Version, string InstallerUrl, string A
 /// <summary>Looks for newer releases on GitHub and downloads their installer.</summary>
 internal static class UpdateChecker
 {
-    public const string RepositoryUrl = "https://github.com/JohanRouyer/DropMe";
-    private const string LatestReleaseApi = "https://api.github.com/repos/JohanRouyer/DropMe/releases/latest";
+    public const string RepositoryUrl = "https://github.com/JohanRouyer/DropMyShelf";
+    private const string LatestReleaseApi = "https://api.github.com/repos/JohanRouyer/DropMyShelf/releases/latest";
 
     public static Version CurrentVersion { get; } =
         Assembly.GetExecutingAssembly().GetName().Version is { } v
@@ -28,7 +28,7 @@ internal static class UpdateChecker
     {
         var client = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
         // GitHub's API rejects requests without a User-Agent.
-        client.DefaultRequestHeaders.UserAgent.ParseAdd($"DropMe/{CurrentVersion}");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd($"DropMyShelf/{CurrentVersion}");
         return client;
     }
 
@@ -52,7 +52,7 @@ internal static class UpdateChecker
         foreach (var asset in release.GetProperty("assets").EnumerateArray())
         {
             string name = asset.GetProperty("name").GetString() ?? "";
-            if (!name.StartsWith("DropMe-Setup-", StringComparison.OrdinalIgnoreCase)
+            if (!name.StartsWith("DropMyShelf-Setup-", StringComparison.OrdinalIgnoreCase)
                 || !name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
                 continue;
 
@@ -65,7 +65,7 @@ internal static class UpdateChecker
         return null;
     }
 
-    private static readonly string DownloadFolder = Path.Combine(Path.GetTempPath(), "DropMe", "updates");
+    private static readonly string DownloadFolder = Path.Combine(Path.GetTempPath(), "DropMyShelf", "updates");
 
     /// <summary>Downloads the installer and checks it against the digest GitHub published for it.</summary>
     public static async Task<string> DownloadAsync(UpdateInfo update)

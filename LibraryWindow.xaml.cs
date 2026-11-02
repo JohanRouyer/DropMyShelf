@@ -6,9 +6,9 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace DropMe;
+namespace DropMyShelf;
 
-/// <summary>The DropMe window opened from the tray icon: open shelves and the recent ones, as cards.</summary>
+/// <summary>The DropMyShelf window opened from the tray icon: open shelves and the recent ones, as cards.</summary>
 public partial class LibraryWindow : Window
 {
     private static readonly Brush CardIdle = ShelfStack.Frozen(Color.FromArgb(0x14, 0xFF, 0xFF, 0xFF));

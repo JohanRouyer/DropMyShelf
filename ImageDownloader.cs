@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace DropMe;
+namespace DropMyShelf;
 
 /// <summary>Turns an image dragged from a web page into a real image file.</summary>
 internal static class ImageDownloader
@@ -107,7 +107,7 @@ internal static class ImageDownloader
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"DropMe: could not download image {url}: {ex}");
+            Debug.WriteLine($"DropMyShelf: could not download image {url}: {ex}");
             return null;
         }
     }

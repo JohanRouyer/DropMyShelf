@@ -1,8 +1,8 @@
 using System.Runtime.InteropServices;
 
-namespace DropMe;
+namespace DropMyShelf;
 
-/// <summary>Tells the Microsoft Store (MSIX) build apart from the version installed by DropMe's own installer.</summary>
+/// <summary>Tells the Microsoft Store (MSIX) build apart from the version installed by DropMyShelf's own installer.</summary>
 internal static class PackageInfo
 {
     private const int AppModelErrorNoPackage = 15700;

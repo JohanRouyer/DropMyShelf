@@ -1,6 +1,6 @@
-"""Builds docs/demo.gif: a short loop showing DropMe's drag, shake, drop and move.
+"""Builds docs/demo.gif: a short loop showing DropMyShelf's drag, shake, drop and move.
 
-The shelf and icons are real DropMe windows rendered by tools/screenshots; this script only
+The shelf and icons are real DropMyShelf windows rendered by tools/screenshots; this script only
 moves them around a backdrop with a cursor. Needs Pillow.
 
 Usage: python tools/make_demo_gif.py <sprites folder> <output gif>

@@ -1,4 +1,4 @@
-Required Notice: Copyright (c) 2026 JohanRouyer (https://github.com/JohanRouyer/DropMe)
+Required Notice: Copyright (c) 2026 JohanRouyer (https://github.com/JohanRouyer/DropMyShelf)
 
 # PolyForm Noncommercial License 1.0.0
 

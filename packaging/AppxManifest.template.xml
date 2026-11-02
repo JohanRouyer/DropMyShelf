@@ -13,7 +13,7 @@
   <Identity Name="{{IdentityName}}" Publisher="{{Publisher}}" Version="{{Version}}" ProcessorArchitecture="x64" />
 
   <Properties>
-    <DisplayName>DropMe</DisplayName>
+    <DisplayName>DropMyShelf</DisplayName>
     <PublisherDisplayName>{{PublisherDisplayName}}</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
     <Description>A floating shelf for drag and drop: shake the mouse while dragging to hold files for a moment.</Description>
@@ -28,9 +28,9 @@
   </Resources>
 
   <Applications>
-    <Application Id="DropMe" Executable="DropMe.exe" EntryPoint="Windows.FullTrustApplication">
+    <Application Id="DropMyShelf" Executable="DropMyShelf.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
-        DisplayName="DropMe"
+        DisplayName="DropMyShelf"
         Description="A floating shelf for drag and drop"
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
@@ -38,9 +38,9 @@
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
       </uap:VisualElements>
       <Extensions>
-        <!-- Starts DropMe at sign-in; the user can turn it off in Settings > Apps > Startup. -->
-        <desktop:Extension Category="windows.startupTask" Executable="DropMe.exe" EntryPoint="Windows.FullTrustApplication">
-          <desktop:StartupTask TaskId="DropMeStartup" Enabled="true" DisplayName="DropMe" />
+        <!-- Starts DropMyShelf at sign-in; the user can turn it off in Settings > Apps > Startup. -->
+        <desktop:Extension Category="windows.startupTask" Executable="DropMyShelf.exe" EntryPoint="Windows.FullTrustApplication">
+          <desktop:StartupTask TaskId="DropMyShelfStartup" Enabled="true" DisplayName="DropMyShelf" />
         </desktop:Extension>
       </Extensions>
     </Application>

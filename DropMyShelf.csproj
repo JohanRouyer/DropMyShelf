@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -7,20 +7,20 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>DropMe</AssemblyName>
-    <RootNamespace>DropMe</RootNamespace>
-    <Version>1.3.2</Version>
-    <ApplicationIcon>Assets\DropMe.ico</ApplicationIcon>
-    <Product>DropMe</Product>
+    <AssemblyName>DropMyShelf</AssemblyName>
+    <RootNamespace>DropMyShelf</RootNamespace>
+    <Version>1.4.0</Version>
+    <ApplicationIcon>Assets\DropMyShelf.ico</ApplicationIcon>
+    <Product>DropMyShelf</Product>
     <Description>Floating drag-and-drop shelf</Description>
     <Authors>JohanRouyer</Authors>
     <Copyright>Copyright (c) 2026 JohanRouyer</Copyright>
     <PackageLicenseExpression>PolyForm-Noncommercial-1.0.0</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/JohanRouyer/DropMe</RepositoryUrl>
+    <RepositoryUrl>https://github.com/JohanRouyer/DropMyShelf</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
-    <Resource Include="Assets\DropMe.ico" />
+    <Resource Include="Assets\DropMyShelf.ico" />
   </ItemGroup>
 
   <!-- tools/ holds separate projects (screenshot renderer); keep them out of the app. -->
@@ -28,7 +28,7 @@
     <Compile Remove="tools\**" />
     <Page Remove="tools\**" />
     <None Remove="tools\**" />
-    <InternalsVisibleTo Include="DropMe.Screenshots" />
+    <InternalsVisibleTo Include="DropMyShelf.Screenshots" />
   </ItemGroup>
 
 </Project>

@@ -17,7 +17,7 @@ using System.Windows.Threading;
 using Drawing = System.Drawing;
 using Forms = System.Windows.Forms;
 
-namespace DropMe;
+namespace DropMyShelf;
 
 /// <summary>A small floating shelf that holds references to dropped files until they are dragged out again.</summary>
 public partial class ShelfWindow : Window
@@ -53,7 +53,7 @@ public partial class ShelfWindow : Window
     [DllImport("user32.dll")]
     private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint uFlags);
 
-    private static readonly string TempFolder = Path.Combine(Path.GetTempPath(), "DropMe");
+    private static readonly string TempFolder = Path.Combine(Path.GetTempPath(), "DropMyShelf");
     private static readonly Brush IdleOutline = ShelfStack.Frozen(Color.FromArgb(0x50, 0xFF, 0xFF, 0xFF));
     private static readonly Brush IdleBorder = ShelfStack.Frozen(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF));
     private static readonly Brush RowHover = ShelfStack.Frozen(Color.FromArgb(0x1C, 0xFF, 0xFF, 0xFF));
@@ -238,7 +238,7 @@ public partial class ShelfWindow : Window
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"DropMe: could not read dropped data: {ex}");
+            Debug.WriteLine($"DropMyShelf: could not read dropped data: {ex}");
         }
         return new List<string>();
     }
@@ -259,7 +259,7 @@ public partial class ShelfWindow : Window
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"DropMe: could not save text: {ex}");
+            Debug.WriteLine($"DropMyShelf: could not save text: {ex}");
             return null;
         }
     }
@@ -573,7 +573,7 @@ public partial class ShelfWindow : Window
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"DropMe: could not open {path}: {ex}");
+            Debug.WriteLine($"DropMyShelf: could not open {path}: {ex}");
         }
     }
 

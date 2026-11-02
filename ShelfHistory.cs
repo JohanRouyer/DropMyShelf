@@ -6,15 +6,15 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 
-namespace DropMe;
+namespace DropMyShelf;
 
-/// <summary>The last few closed shelves, saved to %APPDATA%\DropMe\history.json so they survive a restart.</summary>
+/// <summary>The last few closed shelves, saved to %APPDATA%\DropMyShelf\history.json so they survive a restart.</summary>
 internal sealed class ShelfHistory
 {
     public sealed record Entry(List<string> Items, DateTime ClosedAt);
 
     private static readonly string DefaultFilePath = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DropMe", "history.json");
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DropMyShelf", "history.json");
 
     private readonly List<Entry> _entries = new();
     private int _capacity = Settings.DefaultHistorySize;
@@ -52,7 +52,7 @@ internal sealed class ShelfHistory
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"DropMe: could not read history: {ex}");
+            Debug.WriteLine($"DropMyShelf: could not read history: {ex}");
         }
         return history;
     }
@@ -104,7 +104,7 @@ internal sealed class ShelfHistory
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"DropMe: could not save history: {ex}");
+            Debug.WriteLine($"DropMyShelf: could not save history: {ex}");
         }
     }
 }

@@ -1,17 +1,17 @@
-# Builds dist\DropMe-<version>.msix for the Microsoft Store.
+# Builds dist\DropMyShelf-<version>.msix for the Microsoft Store.
 # Needs the .NET 8 SDK and the Windows SDK (winget install Microsoft.WindowsSDK.10.0.26100).
 #
 # The identity values come from Partner Center > your app > Product management > Product identity.
 # Without them the package is only good for local testing (it can't be uploaded).
 param(
-    [string]$IdentityName = 'DropMe.LocalTest',
-    [string]$Publisher = 'CN=DropMe Local Test',
+    [string]$IdentityName = 'DropMyShelf.LocalTest',
+    [string]$Publisher = 'CN=DropMyShelf Local Test',
     [string]$PublisherDisplayName = 'JohanRouyer'
 )
 $ErrorActionPreference = 'Stop'
 
 $root = Split-Path $PSScriptRoot
-$version = ([xml](Get-Content "$root\DropMe.csproj")).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+$version = ([xml](Get-Content "$root\DropMyShelf.csproj")).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
 # The Store requires four parts, the last one 0.
 $packageVersion = "$version.0"
 
@@ -24,7 +24,7 @@ $makepri = Join-Path $sdkBin.FullName 'makepri.exe'
 $layout = Join-Path $root 'bin\msix\layout'
 if (Test-Path $layout) { Remove-Item $layout -Recurse -Force }
 
-dotnet publish "$root\DropMe.csproj" -c Release -r win-x64 --self-contained true `
+dotnet publish "$root\DropMyShelf.csproj" -c Release -r win-x64 --self-contained true `
     -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true `
     -p:PublishReadyToRun=true -p:DebugType=none -o $layout
 if ($LASTEXITCODE) { throw "dotnet publish failed" }
@@ -50,7 +50,7 @@ $config.Save($priConfig)
 if ($LASTEXITCODE) { throw "makepri failed" }
 
 New-Item -ItemType Directory -Force "$root\dist" | Out-Null
-$package = Join-Path $root "dist\DropMe-$version.msix"
+$package = Join-Path $root "dist\DropMyShelf-$version.msix"
 & $makeappx pack /o /d $layout /p $package | Out-Null
 if ($LASTEXITCODE) { throw "makeappx failed" }
 

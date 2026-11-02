@@ -6,7 +6,7 @@ using System.Text;
 using System.Windows;
 using ComTypes = System.Runtime.InteropServices.ComTypes;
 
-namespace DropMe;
+namespace DropMyShelf;
 
 /// <summary>
 /// Reads "virtual" files (FileGroupDescriptorW + FileContents), which is how browsers

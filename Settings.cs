@@ -3,16 +3,16 @@ using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 
-namespace DropMe;
+namespace DropMyShelf;
 
-/// <summary>User preferences, saved to %APPDATA%\DropMe\settings.json.</summary>
+/// <summary>User preferences, saved to %APPDATA%\DropMyShelf\settings.json.</summary>
 internal sealed class Settings
 {
     public static readonly int[] HistorySizeChoices = { 3, 5, 10, 20, 50 };
     public const int DefaultHistorySize = 5;
 
     private static readonly string FilePath = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DropMe", "settings.json");
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DropMyShelf", "settings.json");
 
     public int HistorySize { get; set; } = DefaultHistorySize;
 
@@ -22,7 +22,7 @@ internal sealed class Settings
     /// <summary>Last version the user was told about, so each release is announced only once.</summary>
     public string? NotifiedVersion { get; set; }
 
-    /// <summary>The "DropMe is running" tip has been shown once.</summary>
+    /// <summary>The "DropMyShelf is running" tip has been shown once.</summary>
     public bool WelcomeShown { get; set; }
 
     public static Settings Load()
@@ -37,7 +37,7 @@ internal sealed class Settings
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"DropMe: could not read settings: {ex}");
+            Debug.WriteLine($"DropMyShelf: could not read settings: {ex}");
         }
         return new Settings();
     }
@@ -51,7 +51,7 @@ internal sealed class Settings
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"DropMe: could not save settings: {ex}");
+            Debug.WriteLine($"DropMyShelf: could not save settings: {ex}");
         }
     }
 }

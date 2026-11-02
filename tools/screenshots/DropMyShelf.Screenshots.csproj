@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Renders DropMe's real windows with sample files into the PNGs used by the README. -->
+  <!-- Renders DropMyShelf's real windows with sample files into the PNGs used by the README. -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
@@ -8,12 +8,12 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>DropMe.Screenshots</AssemblyName>
-    <RootNamespace>DropMe.Screenshots</RootNamespace>
+    <AssemblyName>DropMyShelf.Screenshots</AssemblyName>
+    <RootNamespace>DropMyShelf.Screenshots</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\DropMe.csproj" />
+    <ProjectReference Include="..\..\DropMyShelf.csproj" />
   </ItemGroup>
 
 </Project>

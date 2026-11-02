@@ -7,9 +7,9 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 
-namespace DropMe;
+namespace DropMyShelf;
 
-/// <summary>Visual pieces shared by the shelves and the DropMe window.</summary>
+/// <summary>Visual pieces shared by the shelves and the DropMyShelf window.</summary>
 internal static class ShelfStack
 {
     public static readonly Brush Accent = Frozen(Color.FromRgb(0x58, 0x65, 0xF2));

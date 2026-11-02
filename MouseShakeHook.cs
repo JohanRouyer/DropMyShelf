@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace DropMe;
+namespace DropMyShelf;
 
 /// <summary>
 /// Global low-level mouse hook that fires <see cref="Shaken"/> when the mouse is
@@ -120,7 +120,7 @@ internal sealed class MouseShakeHook : IDisposable
         })
         {
             IsBackground = true,
-            Name = "DropMe mouse hook",
+            Name = "DropMyShelf mouse hook",
             Priority = ThreadPriority.AboveNormal,
         };
         _thread.Start();

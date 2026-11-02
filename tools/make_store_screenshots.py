@@ -1,7 +1,7 @@
 """Builds 1920x1080 Microsoft Store screenshots in store/screenshots from the renders in docs/.
 
 Run tools/screenshots first (see README). Needs Pillow.
-Usage: python tools/make_store_screenshots.py [sprites folder, default %TEMP%\\dropme-sprites]
+Usage: python tools/make_store_screenshots.py [sprites folder, default %TEMP%\\dropmyshelf-sprites]
 """
 
 import os
@@ -56,7 +56,7 @@ def arrow(canvas: Image.Image, start, end) -> None:
 
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
-    sprites = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(os.environ["TEMP"]) / "dropme-sprites"
+    sprites = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(os.environ["TEMP"]) / "dropmyshelf-sprites"
 
     shot = backdrop()
     headline(shot, "Shake the mouse. A shelf appears.", "Drop files on it, find where they go, drag them out.")

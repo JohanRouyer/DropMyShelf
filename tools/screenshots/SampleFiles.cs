@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace DropMe.Screenshots;
+namespace DropMyShelf.Screenshots;
 
 /// <summary>Believable files to put on the shelves: generated landscapes, a text file and a folder.</summary>
 internal sealed class SampleFiles
