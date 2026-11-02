@@ -120,7 +120,7 @@ public partial class App : Application
         await CheckForUpdatesAsync(manual: false);
     }
 
-    private void SetAutoCheckUpdates(bool enabled)
+    internal void SetAutoCheckUpdates(bool enabled)
     {
         Settings.AutoCheckUpdates = enabled;
         Settings.Save();
@@ -400,13 +400,13 @@ public partial class App : Application
         return new Drawing.Icon(stream, Forms.SystemInformation.SmallIconSize);
     }
 
-    private static bool IsStartupEnabled()
+    internal static bool IsStartupEnabled()
     {
         using var key = Registry.CurrentUser.OpenSubKey(RunKeyPath);
         return key?.GetValue(RunValueName) is string;
     }
 
-    private static void SetStartupEnabled(bool enabled)
+    internal static void SetStartupEnabled(bool enabled)
     {
         using var key = Registry.CurrentUser.CreateSubKey(RunKeyPath);
         if (enabled && Environment.ProcessPath is string exe)

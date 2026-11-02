@@ -211,6 +211,20 @@ public partial class LibraryWindow : Window
             };
             menu.Items.Add(item);
         }
+
+        menu.Items.Add(new Separator());
+        // Checkable items flip IsChecked themselves before Click, so it already holds the new value.
+        var startup = new MenuItem { Header = "Start with Windows", IsCheckable = true, IsChecked = App.IsStartupEnabled() };
+        startup.Click += (_, _) => App.SetStartupEnabled(startup.IsChecked);
+        menu.Items.Add(startup);
+        var updates = new MenuItem
+        {
+            Header = "Check for updates automatically",
+            IsCheckable = true,
+            IsChecked = _app.Settings.AutoCheckUpdates,
+        };
+        updates.Click += (_, _) => _app.SetAutoCheckUpdates(updates.IsChecked);
+        menu.Items.Add(updates);
         menu.IsOpen = true;
     }
 
