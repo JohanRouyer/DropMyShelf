@@ -81,9 +81,17 @@ public partial class App : Application
             UpdateChecker.DeleteDownloadedInstallers();
             Notify($"DropMe updated to {UpdateChecker.CurrentVersion}", "Your shelves and settings were kept.");
         }
-        else if (!e.Args.Contains(StartupArgument))
+        else if (!Settings.WelcomeShown && !e.Args.Contains(StartupArgument))
+        {
+            // Once only: the Store build can't pass --startup, so a start with Windows looks like any other.
+            Settings.WelcomeShown = true;
+            Settings.Save();
             Notify("DropMe is running", "Drag a file and shake the mouse to bring up a shelf.");
+        }
 
+        // The Store updates its apps itself and doesn't allow them to install their own updates.
+        if (PackageInfo.IsPackaged)
+            return;
         if (e.Args.Contains(UpdateArgument))
             UpdateNow();
         else if (Settings.AutoCheckUpdates)
@@ -384,15 +392,23 @@ public partial class App : Application
         }
         menu.Items.Add(historySize);
 
-        var startup = new Forms.ToolStripMenuItem("Start with Windows") { Checked = IsStartupEnabled() };
-        startup.Click += (_, _) => SetStartupEnabled(!startup.Checked);
-        menu.Items.Add(startup);
+        if (PackageInfo.IsPackaged)
+        {
+            menu.Items.Add(StartupSettingsLabel, null, (_, _) => OpenStartupSettings());
+            menu.Items.Add(new Forms.ToolStripSeparator());
+        }
+        else
+        {
+            var startup = new Forms.ToolStripMenuItem("Start with Windows") { Checked = IsStartupEnabled() };
+            startup.Click += (_, _) => SetStartupEnabled(!startup.Checked);
+            menu.Items.Add(startup);
 
-        var autoUpdate = new Forms.ToolStripMenuItem("Check for updates automatically") { Checked = Settings.AutoCheckUpdates };
-        autoUpdate.Click += (_, _) => SetAutoCheckUpdates(!Settings.AutoCheckUpdates);
-        menu.Items.Add(autoUpdate);
-        menu.Items.Add(new Forms.ToolStripSeparator());
-        menu.Items.Add("Check for updates", null, async (_, _) => await CheckForUpdatesAsync(manual: true));
+            var autoUpdate = new Forms.ToolStripMenuItem("Check for updates automatically") { Checked = Settings.AutoCheckUpdates };
+            autoUpdate.Click += (_, _) => SetAutoCheckUpdates(!Settings.AutoCheckUpdates);
+            menu.Items.Add(autoUpdate);
+            menu.Items.Add(new Forms.ToolStripSeparator());
+            menu.Items.Add("Check for updates", null, async (_, _) => await CheckForUpdatesAsync(manual: true));
+        }
         menu.Items.Add("About DropMe", null, (_, _) => ShowAbout());
         menu.Items.Add("Quit", null, (_, _) => Shutdown());
     }
@@ -414,6 +430,14 @@ public partial class App : Application
         using var stream = GetResourceStream(new Uri("pack://application:,,,/Assets/DropMe.ico")).Stream;
         return new Drawing.Icon(stream, Forms.SystemInformation.SmallIconSize);
     }
+
+    internal const string StartupSettingsLabel = "Start with Windows…";
+
+    /// <summary>
+    /// The Store build starts with Windows through a package startup task, which Windows lets the
+    /// user switch on or off in Settings > Apps > Startup.
+    /// </summary>
+    internal static void OpenStartupSettings() => OpenUrl("ms-settings:startupapps");
 
     internal static bool IsStartupEnabled()
     {

@@ -22,6 +22,9 @@ internal sealed class Settings
     /// <summary>Last version the user was told about, so each release is announced only once.</summary>
     public string? NotifiedVersion { get; set; }
 
+    /// <summary>The "DropMe is running" tip has been shown once.</summary>
+    public bool WelcomeShown { get; set; }
+
     public static Settings Load()
     {
         try

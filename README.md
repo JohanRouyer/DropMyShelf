@@ -74,7 +74,7 @@ right-click it for settings.
 
 - **Privacy.** DropMe works entirely on your PC. The only network requests are a daily, anonymous
   check of this repository's latest release (which you can turn off from the tray menu) and
-  downloading images you drop from websites.
+  downloading images you drop from websites. See the [privacy policy](PRIVACY.md).
 - **Where things are kept.** Images, text and links dropped from other apps are saved to
   `%TEMP%\DropMe`. History and settings live in `%APPDATA%\DropMe`. Uninstalling removes both.
 - **Smart App Control.** DropMe isn't code-signed yet, so on PCs where Windows' Smart App Control is

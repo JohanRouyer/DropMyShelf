@@ -213,6 +213,15 @@ public partial class LibraryWindow : Window
         }
 
         menu.Items.Add(new Separator());
+        if (PackageInfo.IsPackaged)
+        {
+            // Store build: startup is a package startup task, and the Store handles updates.
+            var startupSettings = new MenuItem { Header = App.StartupSettingsLabel };
+            startupSettings.Click += (_, _) => App.OpenStartupSettings();
+            menu.Items.Add(startupSettings);
+            menu.IsOpen = true;
+            return;
+        }
         // Checkable items flip IsChecked themselves before Click, so it already holds the new value.
         var startup = new MenuItem { Header = "Start with Windows", IsCheckable = true, IsChecked = App.IsStartupEnabled() };
         startup.Click += (_, _) => App.SetStartupEnabled(startup.IsChecked);
