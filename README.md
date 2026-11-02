@@ -111,6 +111,10 @@ dotnet run --project tools\screenshots -c Release -- docs %TEMP%\dropmyshelf-spr
 python tools\make_demo_gif.py %TEMP%\dropmyshelf-sprites docs\demo.gif
 ```
 
+The Microsoft Store material in `store/` (screenshots, logos, poster and the 1920x1080 trailer) is
+generated the same way by `tools\make_store_screenshots.py`, `tools\make_logo_png.py` and
+`tools\make_trailer.py` (the trailer also needs FFmpeg: `winget install Gyan.FFmpeg.Essentials`).
+
 ## License
 
 DropMyShelf is free for personal and other **noncommercial** use under the

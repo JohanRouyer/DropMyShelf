@@ -1,7 +1,8 @@
 """Builds docs/demo.gif: a short loop showing DropMyShelf's drag, shake, drop and move.
 
 The shelf and icons are real DropMyShelf windows rendered by tools/screenshots; this script only
-moves them around a backdrop with a cursor. Needs Pillow.
+moves them around a backdrop with a cursor. The scene is laid out on an 800x450 grid and can be
+rendered at any scale (tools/make_trailer.py uses it at 1920x1080). Needs Pillow.
 
 Usage: python tools/make_demo_gif.py <sprites folder> <output gif>
 """
@@ -20,20 +21,21 @@ ACCENT = (88, 101, 242)
 FONTS = Path("C:/Windows/Fonts")
 
 
-def load_sprite(folder: Path, name: str) -> Image.Image:
-    """Sprites are rendered at 2x; bring them back to 1x."""
+def load_sprite(folder: Path, name: str, scale: float) -> Image.Image:
+    """Sprites are rendered at 2x; resize them to the scene's scale."""
     image = Image.open(folder / name).convert("RGBA")
-    return image.resize((image.width // 2, image.height // 2), Image.LANCZOS)
+    return image.resize((round(image.width * scale / 2), round(image.height * scale / 2)), Image.LANCZOS)
 
 
-def backdrop() -> Image.Image:
+def backdrop(width: int, height: int) -> Image.Image:
     top, bottom = (22, 28, 52), (52, 36, 82)
-    mask = Image.linear_gradient("L").resize((WIDTH, HEIGHT))
-    image = Image.composite(Image.new("RGB", (WIDTH, HEIGHT), bottom), Image.new("RGB", (WIDTH, HEIGHT), top), mask)
-    glow = Image.new("L", (WIDTH, HEIGHT), 0)
-    ImageDraw.Draw(glow).ellipse((380, -120, 900, 300), fill=90)
-    glow = glow.filter(ImageFilter.GaussianBlur(90))
-    return Image.composite(Image.new("RGB", (WIDTH, HEIGHT), (96, 84, 170)), image, glow)
+    mask = Image.linear_gradient("L").resize((width, height))
+    image = Image.composite(Image.new("RGB", (width, height), bottom), Image.new("RGB", (width, height), top), mask)
+    s = width / WIDTH
+    glow = Image.new("L", (width, height), 0)
+    ImageDraw.Draw(glow).ellipse((380 * s, -120 * s, 900 * s, 300 * s), fill=90)
+    glow = glow.filter(ImageFilter.GaussianBlur(90 * s))
+    return Image.composite(Image.new("RGB", (width, height), (96, 84, 170)), image, glow)
 
 
 def ease(u: float) -> float:
@@ -68,54 +70,62 @@ def paste_centered(canvas: Image.Image, image: Image.Image, center) -> None:
     canvas.alpha_composite(image, (int(center[0] - image.width / 2), int(center[1] - image.height / 2)))
 
 
-def cursor_image() -> Image.Image:
-    """A Windows-style arrow cursor, drawn at 3x and scaled down for smooth edges."""
+def cursor_image(scale: float) -> Image.Image:
+    """A Windows-style arrow cursor, drawn large and scaled down for smooth edges."""
     points = [(0, 0), (0, 17), (4, 13), (7, 20), (10, 19), (7, 12), (12, 12)]
     big = Image.new("RGBA", (48, 66), (0, 0, 0, 0))
     draw = ImageDraw.Draw(big)
     draw.polygon([(2 + x * 3, 2 + y * 3) for x, y in points], fill="white", outline="black", width=3)
-    return big.resize((16, 22), Image.LANCZOS)
+    return big.resize((round(16 * scale), round(22 * scale)), Image.LANCZOS)
 
 
-def caption(canvas: Image.Image, step: str, text: str, alpha: float) -> None:
+def caption(canvas: Image.Image, step: str, text: str, alpha: float, s: float) -> None:
     if alpha <= 0:
         return
-    bold = ImageFont.truetype(str(FONTS / "seguisb.ttf"), 17)
+    bold = ImageFont.truetype(str(FONTS / "seguisb.ttf"), round(17 * s))
     layer = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(layer)
-    text_width = draw.textlength(text, font=bold)
-    width = int(text_width + 66)
-    left, top = (WIDTH - width) // 2, HEIGHT - 66
-    draw.rounded_rectangle((left, top, left + width, top + 40), radius=20, fill=(14, 14, 20, 200))
-    draw.ellipse((left + 9, top + 8, left + 33, top + 32), fill=ACCENT)
+    width = draw.textlength(text, font=bold) + 66 * s
+    left, top = (canvas.width - width) / 2, canvas.height - 66 * s
+    draw.rounded_rectangle((left, top, left + width, top + 40 * s), radius=20 * s, fill=(14, 14, 20, 200))
+    draw.ellipse((left + 9 * s, top + 8 * s, left + 33 * s, top + 32 * s), fill=ACCENT)
     if step == "done":
-        draw.line([(left + 15, top + 20), (left + 19, top + 24), (left + 27, top + 15)], fill="white", width=3)
+        draw.line([(left + 15 * s, top + 20 * s), (left + 19 * s, top + 24 * s), (left + 27 * s, top + 15 * s)],
+                  fill="white", width=round(3 * s))
     else:
-        draw.text((left + 21, top + 20), step, font=bold, fill="white", anchor="mm")
-    draw.text((left + 44, top + 20), text, font=bold, fill="white", anchor="lm")
+        draw.text((left + 21 * s, top + 20 * s), step, font=bold, fill="white", anchor="mm")
+    draw.text((left + 44 * s, top + 20 * s), text, font=bold, fill="white", anchor="lm")
     canvas.alpha_composite(with_alpha(layer, alpha))
 
 
-def main(sprites_dir: str, output: str) -> None:
+def demo_frames(sprites_dir, scale: float = 1.0, fps: int = FPS, captions: bool = True):
+    """Yields the animation's frames (RGB), WIDTH x HEIGHT times `scale`, at `fps`."""
+    s = scale
     sprites = Path(sprites_dir)
-    empty = load_sprite(sprites, "shelf-empty.png")
-    highlight = load_sprite(sprites, "shelf-highlight.png")
-    holding = load_sprite(sprites, "shelf-one.png")
-    file_icon = load_sprite(sprites, "icon-file.png")
-    folder_icon = load_sprite(sprites, "icon-folder.png")
+    empty = load_sprite(sprites, "shelf-empty.png", s)
+    highlight = load_sprite(sprites, "shelf-highlight.png", s)
+    holding = load_sprite(sprites, "shelf-one.png", s)
+    file_icon = load_sprite(sprites, "icon-file.png", s)
+    folder_icon = load_sprite(sprites, "icon-folder.png", s)
     # The picture part of the file icon follows the cursor while dragging, like Windows' drag image.
-    ghost = with_alpha(scaled(file_icon.crop((21, 8, 105, 92)), 0.8), 0.75)
-    cursor = cursor_image()
-    background = backdrop().convert("RGBA")
+    ghost = with_alpha(scaled(file_icon.crop((round(21 * s), round(8 * s), round(105 * s), round(92 * s))), 0.8), 0.75)
+    cursor = cursor_image(s)
+    background = backdrop(round(WIDTH * s), round(HEIGHT * s)).convert("RGBA")
 
+    # Layout on the 800x450 grid; everything is drawn at (x * s, y * s).
+    shelf_w, shelf_h = empty.width / s, empty.height / s
+    icon_w, icon_h = folder_icon.width / s, folder_icon.height / s
     file_pos, folder_pos = (90, 140), (584, 140)
     file_center = (file_pos[0] + 63, file_pos[1] + 50)
     folder_center = (folder_pos[0] + 63, folder_pos[1] + 50)
     start, drag_spot = (690, 360), (300, 220)
     # Same placement as ShelfWindow.ShowNearCursor: 24 px right of the cursor, vertically centered.
-    shelf_left, shelf_top = drag_spot[0] + 24, drag_spot[1] - empty.height // 2
-    shelf_center = (shelf_left + empty.width / 2, shelf_top + empty.height / 2 + 6)
-    card = (shelf_left + 12, shelf_top + 12, shelf_left + empty.width - 12, shelf_top + empty.height - 12)
+    shelf_left, shelf_top = drag_spot[0] + 24, drag_spot[1] - shelf_h / 2
+    shelf_center = (shelf_left + shelf_w / 2, shelf_top + shelf_h / 2 + 6)
+    card = (shelf_left + 12, shelf_top + 12, shelf_left + shelf_w - 12, shelf_top + shelf_h - 12)
+
+    def at(point):
+        return (round(point[0] * s), round(point[1] * s))
 
     steps = [  # (start, end, number, text)
         (0.0, 1.75, "1", "Drag a file"),
@@ -125,9 +135,8 @@ def main(sprites_dir: str, output: str) -> None:
         (5.9, DURATION, "done", "Drag · Shake · Drop"),
     ]
 
-    frames = []
-    for index in range(int(DURATION * FPS)):
-        t = index / FPS
+    for index in range(int(DURATION * fps)):
+        t = index / fps
         frame = background.copy()
 
         # Cursor path and what it carries.
@@ -155,17 +164,17 @@ def main(sprites_dir: str, output: str) -> None:
             pos = between(t, 5.8, 6.6, folder_center, (700, 330))
 
         # The file leaves the desktop once it has been moved into the folder.
-        frame.alpha_composite(with_alpha(file_icon, 1 - fade(t, 5.55, 5.8)), file_pos)
+        frame.alpha_composite(with_alpha(file_icon, 1 - fade(t, 5.55, 5.8)), at(file_pos))
 
         over_folder = 4.6 <= t < 5.8 and math.dist(pos, folder_center) < 55
         if over_folder:
             # Explorer-style hover: a soft rounded selection behind the drop target.
             selection = Image.new("RGBA", frame.size, (0, 0, 0, 0))
             ImageDraw.Draw(selection).rounded_rectangle(
-                (folder_pos[0] + 6, folder_pos[1] + 4, folder_pos[0] + folder_icon.width - 6,
-                 folder_pos[1] + folder_icon.height - 4), radius=8, fill=(255, 255, 255, 34))
+                (*at((folder_pos[0] + 6, folder_pos[1] + 4)), *at((folder_pos[0] + icon_w - 6, folder_pos[1] + icon_h - 4))),
+                radius=8 * s, fill=(255, 255, 255, 34))
             frame.alpha_composite(selection)
-        frame.alpha_composite(folder_icon, folder_pos)
+        frame.alpha_composite(folder_icon, at(folder_pos))
 
         # The shelf: pops in after the shake, highlights under the drag, holds the photo, closes when emptied.
         if t >= 2.5:
@@ -180,17 +189,24 @@ def main(sprites_dir: str, output: str) -> None:
             if alpha > 0:
                 factor = (0.85 + 0.15 * grow) * (1 - 0.06 * close)
                 paste_centered(frame, with_alpha(scaled(sprite, factor), alpha),
-                               (shelf_left + sprite.width / 2, shelf_top + sprite.height / 2))
+                               at((shelf_left + shelf_w / 2, shelf_top + shelf_h / 2)))
 
         if dragging:
-            frame.alpha_composite(ghost, (int(pos[0] - ghost.width / 2 + 10), int(pos[1] - ghost.height / 2 + 14)))
-        frame.alpha_composite(cursor, (int(pos[0]), int(pos[1])))
+            frame.alpha_composite(ghost, (int(pos[0] * s - ghost.width / 2 + 10 * s),
+                                          int(pos[1] * s - ghost.height / 2 + 14 * s)))
+        frame.alpha_composite(cursor, at(pos))
 
-        for t0, t1, number, text in steps:
-            if t0 <= t < t1:
-                caption(frame, number, text, min(fade(t, t0, t0 + 0.2), 1 - fade(t, t1 - 0.15, t1)))
+        if captions:
+            for t0, t1, number, text in steps:
+                if t0 <= t < t1:
+                    caption(frame, number, text, min(fade(t, t0, t0 + 0.2), 1 - fade(t, t1 - 0.15, t1)), s)
 
-        frames.append(frame.convert("RGB"))
+        yield frame.convert("RGB")
+
+
+def main(sprites_dir: str, output: str) -> None:
+    sprites = Path(sprites_dir)
+    frames = list(demo_frames(sprites))
 
     # One shared palette for every frame avoids colour flicker between frames. The accent colour and
     # the photo cover few pixels, so enlarged swatches of them keep their colours from being merged away.

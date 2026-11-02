@@ -74,6 +74,11 @@ Copyright (c) 2026 JohanRouyer
 store/screenshots/1-shelves.png, 2-library.png, 3-drag-shake-drop.png
 (regenerate with `python tools\make_store_screenshots.py`)
 
+## Trailer
+
+store/trailer/DropMyShelf-trailer.mp4 (1920x1080, H.264, 27 s, no audio) with its thumbnail
+store/trailer/DropMyShelf-trailer-thumbnail.png (regenerate with `python tools\make_trailer.py`)
+
 ## Notes for certification (Submission options > Notes for certification)
 
 DropMyShelf is a WPF desktop app. It uses runFullTrust because it installs a low-level mouse hook
