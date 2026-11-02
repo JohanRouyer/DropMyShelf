@@ -9,7 +9,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>DropMyShelf</AssemblyName>
     <RootNamespace>DropMyShelf</RootNamespace>
-    <Version>1.4.0</Version>
+    <Version>1.4.1</Version>
     <ApplicationIcon>Assets\DropMyShelf.ico</ApplicationIcon>
     <Product>DropMyShelf</Product>
     <Description>Floating drag-and-drop shelf</Description>

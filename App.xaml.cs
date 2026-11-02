@@ -66,6 +66,8 @@ public partial class App : Application
         };
 
         MoveDataFromOldName();
+        if (!PackageInfo.IsPackaged)
+            RepairStartupApproval();
         Settings = Settings.Load();
         History = ShelfHistory.Load(Settings.HistorySize);
         PrepareSpareShelf();
@@ -461,18 +463,55 @@ public partial class App : Application
     /// </summary>
     internal static void OpenStartupSettings() => OpenUrl("ms-settings:startupapps");
 
+    // Windows keeps its own on/off switch for each Run entry (Task Manager > Startup apps). The first
+    // byte is even when enabled and odd when the user disabled it; recent Windows builds skip a Run
+    // entry that has no switch at all, so DropMyShelf writes "enabled" along with the Run entry.
+    private const string StartupApprovedPath = @"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run";
+    private static readonly byte[] StartupApprovedEnabled = { 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
     internal static bool IsStartupEnabled()
     {
-        using var key = Registry.CurrentUser.OpenSubKey(RunKeyPath);
-        return key?.GetValue(RunValueName) is string;
+        using var run = Registry.CurrentUser.OpenSubKey(RunKeyPath);
+        if (run?.GetValue(RunValueName) is not string)
+            return false;
+        using var approved = Registry.CurrentUser.OpenSubKey(StartupApprovedPath);
+        return approved?.GetValue(RunValueName) is not byte[] { Length: > 0 } state || state[0] % 2 == 0;
     }
 
     internal static void SetStartupEnabled(bool enabled)
     {
-        using var key = Registry.CurrentUser.CreateSubKey(RunKeyPath);
+        using var run = Registry.CurrentUser.CreateSubKey(RunKeyPath);
+        using var approved = Registry.CurrentUser.CreateSubKey(StartupApprovedPath);
         if (enabled && Environment.ProcessPath is string exe)
-            key.SetValue(RunValueName, $"\"{exe}\" {StartupArgument}");
+        {
+            run.SetValue(RunValueName, $"\"{exe}\" {StartupArgument}");
+            approved.SetValue(RunValueName, StartupApprovedEnabled, RegistryValueKind.Binary);
+        }
         else
-            key.DeleteValue(RunValueName, throwOnMissingValue: false);
+        {
+            run.DeleteValue(RunValueName, throwOnMissingValue: false);
+            approved.DeleteValue(RunValueName, throwOnMissingValue: false);
+        }
+    }
+
+    /// <summary>
+    /// Fixes start-with-Windows entries written by earlier versions, which had no Startup apps switch
+    /// and were skipped at sign-in. A switch the user turned off is left alone.
+    /// </summary>
+    private static void RepairStartupApproval()
+    {
+        try
+        {
+            using var run = Registry.CurrentUser.OpenSubKey(RunKeyPath);
+            if (run?.GetValue(RunValueName) is not string)
+                return;
+            using var approved = Registry.CurrentUser.CreateSubKey(StartupApprovedPath);
+            if (approved.GetValue(RunValueName) is null)
+                approved.SetValue(RunValueName, StartupApprovedEnabled, RegistryValueKind.Binary);
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException or IOException)
+        {
+            LogError(ex);
+        }
     }
 }

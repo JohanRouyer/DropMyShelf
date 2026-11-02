@@ -72,6 +72,8 @@ Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExe}"; Tasks: desktopico
 [Registry]
 ; Same value the app's own "Start with Windows" menu item toggles.
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "DropMyShelf"; ValueData: """{app}\{#AppExe}"" --startup"; Tasks: startup
+; Its switch in Settings > Apps > Startup, set to on: Windows skips Run entries that have none.
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"; ValueType: binary; ValueName: "DropMyShelf"; ValueData: "02 00 00 00 00 00 00 00 00 00 00 00"; Tasks: startup
 
 [Run]
 Filename: "{app}\{#AppExe}"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall skipifsilent
@@ -91,6 +93,7 @@ Type: filesandordirs; Name: "{%TEMP}\{#OldName}"
 [Code]
 const
   RunKey = 'Software\Microsoft\Windows\CurrentVersion\Run';
+  StartupApprovedKey = 'Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run';
 
 procedure StopRunningApp();
 var
@@ -129,5 +132,7 @@ begin
   begin
     RegDeleteValue(HKEY_CURRENT_USER, RunKey, '{#AppName}');
     RegDeleteValue(HKEY_CURRENT_USER, RunKey, '{#OldName}');
+    RegDeleteValue(HKEY_CURRENT_USER, StartupApprovedKey, '{#AppName}');
+    RegDeleteValue(HKEY_CURRENT_USER, StartupApprovedKey, '{#OldName}');
   end;
 end;
