@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -180,6 +181,16 @@ public partial class App : Application
             // Exit cleanly before the installer stops the process, so open shelves go to history.
             Shutdown();
         }
+        catch (Win32Exception ex) when (ex.NativeErrorCode is ErrorSystemIntegrityPolicyViolation or ErrorAccessDisabledByPolicy)
+        {
+            // Smart App Control or another app-control policy refused to run the unsigned installer.
+            LogError(ex);
+            _installingUpdate = false;
+            UpdateChecker.DeleteDownloadedInstallers();
+            Notify("Windows blocked the update",
+                $"Smart App Control or your security settings stopped the installer. Click here to get DropMe {update.Version} from GitHub.",
+                Forms.ToolTipIcon.Warning, () => OpenUrl(update.PageUrl));
+        }
         catch (Exception ex)
         {
             LogError(ex);
@@ -188,6 +199,10 @@ public partial class App : Application
                 () => OpenUrl(update.PageUrl));
         }
     }
+
+    // Win32 errors raised when an app-control policy (Smart App Control, WDAC, AppLocker) blocks a program.
+    private const int ErrorSystemIntegrityPolicyViolation = 4551;
+    private const int ErrorAccessDisabledByPolicy = 1260;
 
     private static void OpenUrl(string url) => Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
 

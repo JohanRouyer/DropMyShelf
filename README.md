@@ -77,6 +77,9 @@ right-click it for settings.
   downloading images you drop from websites.
 - **Where things are kept.** Images, text and links dropped from other apps are saved to
   `%TEMP%\DropMe`. History and settings live in `%APPDATA%\DropMe`. Uninstalling removes both.
+- **Smart App Control.** DropMe isn't code-signed yet, so on PCs where Windows' Smart App Control is
+  on, Windows may block the installer or an automatic update. DropMe tells you when that happens
+  and links to the release page.
 - **Known limitation.** The shake is detected whenever the left mouse button is held, so it can
   occasionally trigger while selecting text or moving a window. Windows offers no reliable way to
   tell that a file drag is in progress. Closing the shelf is one click, and an empty shelf closes
