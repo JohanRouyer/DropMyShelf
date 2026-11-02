@@ -61,7 +61,7 @@ def poster(width: int, height: int) -> Image.Image:
 
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
-    for size in (300, 1080, 2160):
+    for size in (71, 150, 300, 1080, 2160):
         path = OUT / f"DropMyShelf-logo-{size}.png"
         logo(size).save(path)
         print(path)
