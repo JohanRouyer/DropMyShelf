@@ -37,23 +37,23 @@ internal static class ShellThumbnail
         public uint biClrUsed, biClrImportant;
     }
 
-    [StructLayout(LayoutKind.Sequential)]
-    private struct DIBSECTION
-    {
-        public BITMAP dsBm;
-        public BITMAPINFOHEADER dsBmih;
-        public uint dsBitfield0, dsBitfield1, dsBitfield2;
-        public IntPtr dshSection;
-        public uint dsOffset;
-    }
-
     [DllImport("shell32.dll", CharSet = CharSet.Unicode, PreserveSig = false)]
     private static extern void SHCreateItemFromParsingName(
         string pszPath, IntPtr pbc, [In] ref Guid riid,
         [MarshalAs(UnmanagedType.Interface)] out IShellItemImageFactory ppv);
 
     [DllImport("gdi32.dll")]
-    private static extern int GetObject(IntPtr hgdiobj, int cbBuffer, out DIBSECTION lpvObject);
+    private static extern int GetObject(IntPtr hgdiobj, int cbBuffer, out BITMAP lpvObject);
+
+    [DllImport("gdi32.dll")]
+    private static extern int GetDIBits(IntPtr hdc, IntPtr hbm, uint start, uint lines, byte[] bits,
+        ref BITMAPINFOHEADER bmi, uint usage);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetDC(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    private static extern int ReleaseDC(IntPtr hWnd, IntPtr hdc);
 
     [DllImport("gdi32.dll")]
     private static extern bool DeleteObject(IntPtr hObject);
@@ -68,18 +68,33 @@ internal static class ShellThumbnail
             SHCreateItemFromParsingName(path, IntPtr.Zero, ref iid, out factory);
             if (factory.GetImage(new SIZE { cx = size, cy = size }, 0, out hbmp) != 0 || hbmp == IntPtr.Zero)
                 return null;
-
-            // Copy the pixels by hand: Imaging.CreateBitmapSourceFromHBitmap drops the alpha channel.
-            if (GetObject(hbmp, Marshal.SizeOf<DIBSECTION>(), out var ds) == 0
-                || ds.dsBm.bmBits == IntPtr.Zero || ds.dsBm.bmBitsPixel != 32)
+            if (GetObject(hbmp, Marshal.SizeOf<BITMAP>(), out var bm) == 0)
                 return null;
 
-            int width = ds.dsBm.bmWidth, height = ds.dsBm.bmHeight, stride = ds.dsBm.bmWidthBytes;
+            // Copy the pixels by hand: Imaging.CreateBitmapSourceFromHBitmap drops the alpha channel.
+            // Asking GetDIBits for a negative height gets top-down rows whatever the bitmap's own
+            // layout: the shell's bitmaps don't reliably say which way up they are stored.
+            int width = bm.bmWidth, height = Math.Abs(bm.bmHeight), stride = width * 4;
+            var header = new BITMAPINFOHEADER
+            {
+                biSize = (uint)Marshal.SizeOf<BITMAPINFOHEADER>(),
+                biWidth = width,
+                biHeight = -height,
+                biPlanes = 1,
+                biBitCount = 32,
+            };
             var pixels = new byte[stride * height];
-            Marshal.Copy(ds.dsBm.bmBits, pixels, 0, pixels.Length);
+            IntPtr screen = GetDC(IntPtr.Zero);
+            try
+            {
+                if (GetDIBits(screen, hbmp, 0, (uint)height, pixels, ref header, 0) != height)
+                    return null;
+            }
+            finally
+            {
+                ReleaseDC(IntPtr.Zero, screen);
+            }
 
-            if (ds.dsBmih.biHeight > 0)
-                FlipRows(pixels, stride, height);
             if (IsFullyTransparent(pixels))
                 for (int i = 3; i < pixels.Length; i += 4)
                     pixels[i] = 255;
@@ -98,17 +113,6 @@ internal static class ShellThumbnail
                 DeleteObject(hbmp);
             if (factory != null)
                 Marshal.ReleaseComObject(factory);
-        }
-    }
-
-    private static void FlipRows(byte[] pixels, int stride, int height)
-    {
-        var row = new byte[stride];
-        for (int top = 0, bottom = height - 1; top < bottom; top++, bottom--)
-        {
-            Buffer.BlockCopy(pixels, top * stride, row, 0, stride);
-            Buffer.BlockCopy(pixels, bottom * stride, pixels, top * stride, stride);
-            Buffer.BlockCopy(row, 0, pixels, bottom * stride, stride);
         }
     }
 
